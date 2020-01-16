@@ -1,0 +1,49 @@
+---
+- name: gitlab | install prereq
+  yum:
+    name: 
+      - curl 
+      - policycoreutils-python
+      - openssh-server
+      - openssh-clients
+      - firewalld
+    state: present
+
+
+- name: Enable firewalld
+  service: name=firewalld enabled=yes state=started
+
+
+- name: gitlab | permit firewall ports
+  firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    state: enabled
+    immediate: true
+  with_items:
+    - http
+    - https
+    - ssh
+
+- name: gitlab | executing shell
+  shell: curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
+  args:
+    creates: /etc/yum.repos.d/gitlab_gitlab-ce.repo
+
+
+- name: gitlab | installing
+  yum: name=gitlab-ce state=present
+
+
+- name: gitlab | ssl certificate
+  copy:
+    src: ssl
+    dest: /etc/gitlab/
+
+
+- name: gitlab | configure gitlab.rb
+  template:
+    src: gitlab.rb
+    dest: /etc/gitlab/gitlab.rb
+    backup: yes
+  notify: reconfigure gitlab

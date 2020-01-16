@@ -1,0 +1,7 @@
+---
+- name: gitlab | provision
+  hosts: all
+  remote_user: centos
+  roles:
+    - gitlab
+

@@ -1,0 +1,3 @@
+---
+bind_user: "Administrator@corp.enciso.website"
+bind_password: "{{ vault_bind_password }}"
